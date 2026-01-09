@@ -125,6 +125,37 @@ export async function getTotalAgendamentosMes() {
   return data as Agendamento[]
 }
 
+// Criar novo agendamento no Supabase
+export async function criarAgendamento(sdrNome: string): Promise<Agendamento> {
+  if (!supabase) throw new Error('Supabase não configurado')
+  
+  const hoje = new Date()
+  const dataAgendamento = hoje.toISOString().split('T')[0]
+  const horaAgendamento = hoje.toTimeString().slice(0, 5) // HH:mm
+  
+  const novoAgendamento = {
+    sdr_nome: sdrNome,
+    cliente_nome: 'Cliente',
+    data_agendamento: dataAgendamento,
+    hora_agendamento: horaAgendamento,
+    status: 'agendado',
+    empreendimento: 'Não informado'
+  }
+  
+  const { data, error } = await supabase
+    .from('agendamentos')
+    .insert([novoAgendamento])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Erro ao criar agendamento:', error)
+    throw error
+  }
+  
+  return data as Agendamento
+}
+
 // Dados mockados para desenvolvimento
 export function getMockData() {
   const hoje = new Date().toISOString().split('T')[0]

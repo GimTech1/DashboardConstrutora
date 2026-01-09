@@ -8,7 +8,9 @@ import {
   SDR_CONFIG,
   getMockData,
   getAgendamentosHoje,
-  getMetasSDR
+  getMetasSDR,
+  getTotalAgendamentosMes,
+  criarAgendamento
 } from './lib/supabase'
 
 // Sons de comemoração
@@ -96,13 +98,20 @@ function App() {
         setMetas(mockMetas)
         setAcumuladoMensal(mockAcumuladoMensal)
       } else {
-        const [agendamentosData, metasData] = await Promise.all([
+        const [agendamentosData, metasData, agendamentosMes] = await Promise.all([
           getAgendamentosHoje(),
-          getMetasSDR()
+          getMetasSDR(),
+          getTotalAgendamentosMes()
         ])
         setAgendamentos(agendamentosData)
         setMetas(metasData)
-        // Em produção, buscar acumulado mensal do banco
+        
+        // Calcular acumulado mensal por SDR
+        const acumulado: Record<string, number> = {}
+        SDRS.forEach(sdr => {
+          acumulado[sdr] = agendamentosMes.filter(a => a.sdr_nome === sdr).length
+        })
+        setAcumuladoMensal(acumulado)
       }
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
@@ -115,19 +124,7 @@ function App() {
     }
   }
 
-  function handleAddAgendamento(sdrNome: string) {
-    const hoje = new Date().toISOString().split('T')[0]
-    const agendamento: Agendamento = {
-      id: String(Date.now()),
-      sdr_nome: sdrNome,
-      cliente_nome: '',
-      data_agendamento: hoje,
-      hora_agendamento: format(new Date(), 'HH:mm'),
-      status: 'agendado',
-      empreendimento: '',
-      created_at: new Date().toISOString()
-    }
-    setAgendamentos(prev => [...prev, agendamento])
+  async function handleAddAgendamento(sdrNome: string) {
     setShowForm(false)
     
     // Mostrar comemoração visual! 🎉
@@ -136,6 +133,45 @@ function App() {
     
     // Tocar som de comemoração! 🔊
     tocarSomComemoracao(sdrNome)
+    
+    try {
+      if (USE_MOCK_DATA) {
+        // Modo mock: apenas adiciona ao estado local
+        const hoje = new Date().toISOString().split('T')[0]
+        const agendamento: Agendamento = {
+          id: String(Date.now()),
+          sdr_nome: sdrNome,
+          cliente_nome: 'Cliente',
+          data_agendamento: hoje,
+          hora_agendamento: format(new Date(), 'HH:mm'),
+          status: 'agendado',
+          empreendimento: 'Não informado',
+          created_at: new Date().toISOString()
+        }
+        setAgendamentos(prev => [...prev, agendamento])
+        // Atualiza o acumulado mensal
+        setAcumuladoMensal(prev => ({
+          ...prev,
+          [sdrNome]: (prev[sdrNome] || 0) + 1
+        }))
+      } else {
+        // Modo produção: salva no Supabase
+        const novoAgendamento = await criarAgendamento(sdrNome)
+        console.log('Agendamento criado:', novoAgendamento)
+        
+        // Adiciona ao estado local
+        setAgendamentos(prev => [...prev, novoAgendamento])
+        
+        // Atualiza o acumulado mensal
+        setAcumuladoMensal(prev => ({
+          ...prev,
+          [sdrNome]: (prev[sdrNome] || 0) + 1
+        }))
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar agendamento:', error)
+      alert('Erro ao salvar agendamento. Verifique o console.')
+    }
   }
 
   const totalAgendamentos = agendamentos.length
