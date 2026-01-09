@@ -63,18 +63,21 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Dashboard Layout - Otimizado para TV */
+/* Dashboard Layout - Otimizado para TV (responsivo) */
 .dashboard {
   height: 100vh;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Header - Compacto para TV */
+/* Header - Compacto e responsivo */
 .header {
-  padding: 16px 40px;
-  height: 80px;
+  padding: 1vh 2vw;
+  height: 8vh;
+  min-height: 50px;
+  max-height: 80px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -93,41 +96,41 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 2vw;
 }
 
 .header-time {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 2px;
+  gap: 0;
 }
 
 .current-date {
-  font-size: 16px;
+  font-size: clamp(10px, 1.2vw, 16px);
   color: var(--text-muted);
   text-transform: capitalize;
 }
 
 .current-time {
-  font-size: 42px;
+  font-size: clamp(24px, 3vw, 42px);
   font-weight: 300;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
   color: var(--text-primary);
 }
 
-/* Add Button - Maior para TV */
+/* Add Button - Responsivo */
 .add-button {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px 28px;
+  gap: 0.8vw;
+  padding: 1.2vh 1.5vw;
   background: var(--accent-purple);
   color: white;
   border: none;
-  border-radius: 14px;
-  font-size: 18px;
+  border-radius: 10px;
+  font-size: clamp(12px, 1.2vw, 18px);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -138,14 +141,20 @@ body {
   transform: translateY(-2px);
 }
 
+.add-button svg {
+  width: clamp(16px, 1.5vw, 28px);
+  height: clamp(16px, 1.5vw, 28px);
+}
+
 /* Main Content - Preenche o espaço disponível */
 .main-content {
   flex: 1;
-  padding: 16px 40px;
+  padding: 1vh 2vw;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1vh;
   overflow: hidden;
+  max-height: calc(100vh - 8vh);
 }
 
 /* Stats Section */
@@ -156,7 +165,7 @@ body {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: 0.8vw;
 }
 
 .stats-grid-5 {
@@ -166,11 +175,11 @@ body {
 .stat-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 8px;
+  padding: 0.8vh 0.8vw;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
 
 .stat-card-highlight {
@@ -180,7 +189,7 @@ body {
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: clamp(8px, 0.7vw, 12px);
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -188,7 +197,7 @@ body {
 }
 
 .stat-value {
-  font-size: 32px;
+  font-size: clamp(16px, 2vw, 32px);
   font-weight: 300;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
@@ -197,9 +206,9 @@ body {
 }
 
 .stat-desc {
-  font-size: 11px;
+  font-size: clamp(7px, 0.6vw, 11px);
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 0;
 }
 
 .stat-success { color: var(--accent-success); }
@@ -209,39 +218,47 @@ body {
 /* Charts Section */
 .charts-section {
   flex-shrink: 0;
+  flex: 1;
+  min-height: 0;
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 1vw;
+  height: 100%;
 }
 
 .chart-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 10px;
+  padding: 1vh 1vw;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-header {
-  margin-bottom: 16px;
+  margin-bottom: 0.5vh;
+  flex-shrink: 0;
 }
 
 .chart-title {
-  font-size: 16px;
+  font-size: clamp(12px, 1vw, 16px);
   font-weight: 500;
   color: var(--text-primary);
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .chart-subtitle {
-  font-size: 13px;
+  font-size: clamp(9px, 0.8vw, 13px);
   color: var(--text-muted);
 }
 
 .chart-container {
-  margin-bottom: 12px;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0.5vh;
 }
 
 .pie-container {
@@ -258,14 +275,14 @@ body {
 
 .pie-total {
   display: block;
-  font-size: 36px;
+  font-size: clamp(20px, 2.5vw, 36px);
   font-weight: 400;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .pie-label {
-  font-size: 13px;
+  font-size: clamp(9px, 0.8vw, 13px);
   color: var(--text-muted);
 }
 
@@ -425,16 +442,23 @@ body {
 
 .chart-legend {
   display: flex;
-  gap: 20px;
+  gap: 1.5vw;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 0.5vw;
+  font-size: clamp(9px, 0.8vw, 14px);
   color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: clamp(6px, 0.5vw, 10px);
+  height: clamp(6px, 0.5vw, 10px);
+  border-radius: 2px;
 }
 
 /* ========== Forecast Cards ========== */
@@ -445,14 +469,14 @@ body {
 .forecast-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 1vw;
 }
 
 .forecast-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 10px;
+  padding: 1vh 1vw;
   transition: all 0.3s ease;
 }
 
@@ -470,19 +494,19 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 0.8vh;
 }
 
 .forecast-name {
-  font-size: 16px;
+  font-size: clamp(12px, 1vw, 16px);
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .forecast-status {
-  font-size: 12px;
+  font-size: clamp(9px, 0.7vw, 12px);
   font-weight: 600;
-  padding: 4px 10px;
+  padding: 0.3vh 0.6vw;
   border-radius: 20px;
 }
 
@@ -497,11 +521,12 @@ body {
 }
 
 .forecast-progress {
-  margin-bottom: 16px;
+  margin-bottom: 1vh;
 }
 
 .forecast-progress-bar {
-  height: 8px;
+  height: 0.6vh;
+  min-height: 4px;
   background: var(--bg-elevated);
   border-radius: 100px;
   position: relative;
@@ -516,9 +541,10 @@ body {
 
 .forecast-progress-expected {
   position: absolute;
-  top: -4px;
-  width: 3px;
-  height: 16px;
+  top: -0.3vh;
+  width: 2px;
+  height: 1.2vh;
+  min-height: 10px;
   background: var(--text-muted);
   border-radius: 2px;
   transform: translateX(-50%);
@@ -527,10 +553,10 @@ body {
 .forecast-progress-expected::after {
   content: 'Esperado';
   position: absolute;
-  top: -18px;
+  top: -1.5vh;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 9px;
+  font-size: clamp(7px, 0.6vw, 9px);
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -538,8 +564,8 @@ body {
 .forecast-progress-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 6px;
-  font-size: 11px;
+  margin-top: 0.4vh;
+  font-size: clamp(8px, 0.7vw, 11px);
   color: var(--text-muted);
 }
 
@@ -550,20 +576,20 @@ body {
 .forecast-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 0.5vw;
+  margin-bottom: 0.8vh;
 }
 
 .forecast-stat {
   text-align: center;
-  padding: 8px 4px;
+  padding: 0.5vh 0.3vw;
   background: var(--bg-elevated);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .forecast-stat-value {
   display: block;
-  font-size: 18px;
+  font-size: clamp(12px, 1.2vw, 18px);
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
@@ -578,7 +604,7 @@ body {
 }
 
 .forecast-stat-label {
-  font-size: 10px;
+  font-size: clamp(7px, 0.55vw, 10px);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -586,12 +612,12 @@ body {
 
 .forecast-footer {
   text-align: center;
-  padding-top: 8px;
+  padding-top: 0.5vh;
   border-top: 1px solid var(--border-subtle);
 }
 
 .forecast-message {
-  font-size: 12px;
+  font-size: clamp(9px, 0.7vw, 12px);
   font-weight: 500;
 }
 
@@ -603,20 +629,15 @@ body {
   color: #fbbf24;
 }
 
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 4px;
-}
-
 /* Monthly Status */
 .monthly-status {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding: 12px 0;
+  gap: 0.8vw;
+  margin-bottom: 0.5vh;
+  padding: 0.5vh 0;
   border-top: 1px solid var(--border-subtle);
   border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .status-item {
@@ -624,9 +645,9 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px;
-  border-radius: 8px;
+  gap: 0.3vh;
+  padding: 0.5vh 0.5vw;
+  border-radius: 6px;
   background: var(--bg-elevated);
 }
 
@@ -639,17 +660,17 @@ body {
 }
 
 .status-name {
-  font-size: 13px;
+  font-size: clamp(10px, 0.8vw, 13px);
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .status-badge {
-  font-size: 11px;
+  font-size: clamp(8px, 0.65vw, 11px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 4px 10px;
+  padding: 0.3vh 0.6vw;
   border-radius: 20px;
   cursor: help;
   transition: all 0.2s ease;
@@ -691,7 +712,7 @@ body {
 }
 
 .status-projection {
-  font-size: 11px;
+  font-size: clamp(8px, 0.65vw, 11px);
   color: var(--text-muted);
   cursor: help;
   transition: color 0.2s ease;
@@ -706,11 +727,11 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 1vh;
 }
 
 .section-title {
-  font-size: 20px;
+  font-size: clamp(14px, 1.2vw, 20px);
   font-weight: 500;
   color: var(--text-primary);
 }

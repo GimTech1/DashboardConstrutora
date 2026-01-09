@@ -301,7 +301,7 @@ function App() {
                 <span className="chart-subtitle">Acumulado vs Esperado (Meta: 120/mês por SDR)</span>
               </div>
               <div className="chart-container">
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartDataMensal} barGap={8}>
                     <XAxis 
                       dataKey="name" 
@@ -412,7 +412,7 @@ function App() {
                 <span className="chart-subtitle">Agendamentos por SDR</span>
               </div>
               <div className="chart-container pie-container">
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieData}
