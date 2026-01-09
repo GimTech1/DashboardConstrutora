@@ -182,13 +182,17 @@ function App() {
   })
 
   const metaTotalDia = metas.reduce((acc, m) => acc + m.meta_diaria, 0)
+  
+  // Total acumulado no mês (soma de todos os SDRs)
+  const totalAcumuladoMes = Object.values(acumuladoMensal).reduce((acc, val) => acc + val, 0)
+  const metaTotalMes = metas.reduce((acc, m) => acc + (m.meta_mensal || 120), 0) // 360 total (120 x 3)
 
   // Dados para o gráfico de barras - Progresso Mensal
   const diaAtual = new Date().getDate()
   const diasNoMes = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
   
   const chartDataMensal = SDRS.map(sdr => {
-    const metaMensal = metas.find(m => m.sdr_nome === sdr)?.meta_mensal || 360
+    const metaMensal = metas.find(m => m.sdr_nome === sdr)?.meta_mensal || 120
     const acumulado = acumuladoMensal[sdr] || 0
     
     // Quanto deveria ter acumulado até hoje para estar na meta
@@ -256,7 +260,12 @@ function App() {
       <main className="main-content">
         {/* Stats Overview */}
         <section className="stats-section">
-          <div className="stats-grid">
+          <div className="stats-grid stats-grid-5">
+            <div className="stat-card stat-card-highlight">
+              <span className="stat-label">Total Acumulado</span>
+              <span className="stat-value stat-accent">{totalAcumuladoMes}</span>
+              <span className="stat-desc">no mês ({metaTotalMes} meta)</span>
+            </div>
             <div className="stat-card">
               <span className="stat-label">Total do Dia</span>
               <span className="stat-value">{totalAgendamentos}</span>
@@ -264,8 +273,8 @@ function App() {
             </div>
             <div className="stat-card">
               <span className="stat-label">Meta do Dia</span>
-              <span className="stat-value stat-accent">{metaTotalDia}</span>
-              <span className="stat-desc">agendamentos esperados</span>
+              <span className="stat-value">{metaTotalDia}</span>
+              <span className="stat-desc">esperados</span>
             </div>
             <div className="stat-card">
               <span className="stat-label">Progresso</span>
@@ -277,7 +286,7 @@ function App() {
             <div className="stat-card">
               <span className="stat-label">Faltam</span>
               <span className="stat-value">{Math.max(0, metaTotalDia - totalAgendamentos)}</span>
-              <span className="stat-desc">para bater a meta</span>
+              <span className="stat-desc">para a meta</span>
             </div>
           </div>
         </section>
@@ -289,7 +298,7 @@ function App() {
             <div className="chart-card">
               <div className="chart-header">
                 <h3 className="chart-title">Progresso Mensal</h3>
-                <span className="chart-subtitle">Acumulado vs Esperado (Meta: 360/mês)</span>
+                <span className="chart-subtitle">Acumulado vs Esperado (Meta: 120/mês por SDR)</span>
               </div>
               <div className="chart-container">
                 <ResponsiveContainer width="100%" height={180}>
@@ -321,7 +330,7 @@ function App() {
                                 Esperado: <strong>{data.esperado}</strong>
                               </p>
                               <p className="tooltip-line">
-                                Projeção: <strong>{data.projecao}/360</strong>
+                                Projeção: <strong>{data.projecao}/{data.metaMensal}</strong>
                               </p>
                             </div>
                           )
@@ -365,19 +374,19 @@ function App() {
                       </span>
                     </span>
                     <span className="status-projection has-tooltip">
-                      Projeção: {sdr.projecao}/360
+                      Projeção: {sdr.projecao}/{sdr.metaMensal}
                       <span className="custom-tooltip">
                         <span className="tooltip-title">Projeção Mensal</span>
                         <span className="tooltip-line">
                           📈 Se mantiver o ritmo atual:
                         </span>
                         <span className="tooltip-line projection-value">
-                          <strong>{sdr.projecao}</strong> de 360
+                          <strong>{sdr.projecao}</strong> de {sdr.metaMensal}
                         </span>
                         <span className="tooltip-line">
-                          {sdr.projecao >= 360 
+                          {sdr.projecao >= sdr.metaMensal 
                             ? '🎉 Vai bater a meta!' 
-                            : `😔 Ficará ${360 - sdr.projecao} abaixo`}
+                            : `😔 Ficará ${sdr.metaMensal - sdr.projecao} abaixo`}
                         </span>
                       </span>
                     </span>
@@ -442,9 +451,9 @@ function App() {
           <div className="forecast-grid">
             {chartDataMensal.map(sdr => {
               const diasRestantes = diasNoMes - diaAtual
-              const faltaParaMeta = 360 - sdr.acumulado
+              const faltaParaMeta = sdr.metaMensal - sdr.acumulado
               const precisaPorDia = diasRestantes > 0 ? Math.ceil(faltaParaMeta / diasRestantes) : 0
-              const percentMeta = Math.round((sdr.acumulado / 360) * 100)
+              const percentMeta = Math.round((sdr.acumulado / sdr.metaMensal) * 100)
               
               return (
                 <div key={sdr.name} className={`forecast-card ${sdr.noRitmo ? 'on-track' : 'behind'}`}>
@@ -466,12 +475,12 @@ function App() {
                       />
                       <div 
                         className="forecast-progress-expected"
-                        style={{ left: `${Math.round((sdr.esperado / 360) * 100)}%` }}
+                        style={{ left: `${Math.round((sdr.esperado / sdr.metaMensal) * 100)}%` }}
                       />
                     </div>
                     <div className="forecast-progress-labels">
                       <span>{sdr.acumulado}</span>
-                      <span className="forecast-meta">Meta: 360</span>
+                      <span className="forecast-meta">Meta: {sdr.metaMensal}</span>
                     </div>
                   </div>
 
@@ -523,7 +532,7 @@ function App() {
                 agendamentos={agendamentos.filter(a => a.sdr_nome === sdr)}
                 metaDiaria={metasPorSDR[sdr] || 6}
                 acumuladoMes={acumuladoMensal[sdr] || 0}
-                metaMensal={metas.find(m => m.sdr_nome === sdr)?.meta_mensal || 360}
+                metaMensal={metas.find(m => m.sdr_nome === sdr)?.meta_mensal || 120}
               />
             ))}
           </div>
@@ -702,7 +711,7 @@ function AgendamentoForm({ onClose, onSubmit }: {
               disabled={!selectedSDR}
             >
               Adicionar
-            </button>
+        </button>
           </div>
         </form>
       </div>

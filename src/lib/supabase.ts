@@ -186,9 +186,9 @@ export function getMockData() {
   ]
 
   const mockMetas: SDRMeta[] = [
-    { id: '1', sdr_nome: 'Renata', meta_diaria: 6, meta_mensal: 360 },
-    { id: '2', sdr_nome: 'Lucas', meta_diaria: 6, meta_mensal: 360 },
-    { id: '3', sdr_nome: 'Maria Eduarda', meta_diaria: 6, meta_mensal: 360 },
+    { id: '1', sdr_nome: 'Renata', meta_diaria: 6, meta_mensal: 120 },
+    { id: '2', sdr_nome: 'Lucas', meta_diaria: 6, meta_mensal: 120 },
+    { id: '3', sdr_nome: 'Maria Eduarda', meta_diaria: 6, meta_mensal: 120 },
   ]
 
   // Simular acumulado mensal (em produção viria do banco)
