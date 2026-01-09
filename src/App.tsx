@@ -216,15 +216,17 @@ function App() {
     }
   })
 
-  // Dados para o gráfico de pizza por SDR
+  // Dados para o gráfico de pizza por SDR (mostra todos, mesmo com zero)
   const pieData = SDRS.map(sdr => {
     const total = agendamentos.filter(a => a.sdr_nome === sdr).length
     return {
       name: sdr === 'Maria Eduarda' ? 'Duda' : sdr,
       value: total,
-      color: SDR_CONFIG[sdr as SDRName].primary
+      // Valor visual mínimo para mostrar fatia mesmo com zero
+      displayValue: total === 0 ? 0.3 : total,
+      color: total === 0 ? `${SDR_CONFIG[sdr as SDRName].primary}40` : SDR_CONFIG[sdr as SDRName].primary
     }
-  }).filter(d => d.value > 0)
+  })
 
   if (loading) {
     return (
@@ -421,10 +423,15 @@ function App() {
                       innerRadius={60}
                       outerRadius={90}
                       paddingAngle={3}
-                      dataKey="value"
+                      dataKey="displayValue"
                     >
                       {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={entry.color}
+                          stroke={entry.value === 0 ? 'rgba(255,255,255,0.1)' : 'none'}
+                          strokeWidth={entry.value === 0 ? 1 : 0}
+                        />
                       ))}
                     </Pie>
                   </PieChart>
