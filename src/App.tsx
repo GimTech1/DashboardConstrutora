@@ -10,7 +10,8 @@ import {
   getAgendamentosHoje,
   getMetasSDR,
   getTotalAgendamentosMes,
-  criarAgendamento
+  criarAgendamento,
+  supabase
 } from './lib/supabase'
 
 // Sons de comemoração
@@ -84,8 +85,40 @@ function App() {
 
   useEffect(() => {
     loadData()
+    
+    // Polling como fallback (a cada 30 segundos)
     const interval = setInterval(loadData, 30000)
-    return () => clearInterval(interval)
+    
+    // Realtime: escuta mudanças na tabela de agendamentos
+    let channel: ReturnType<NonNullable<typeof supabase>['channel']> | null = null
+    
+    if (!USE_MOCK_DATA && supabase) {
+      channel = supabase
+        .channel('agendamentos-realtime')
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // INSERT, UPDATE, DELETE
+            schema: 'public',
+            table: 'agendamentos'
+          },
+          (payload) => {
+            console.log('🔄 Atualização em tempo real:', payload)
+            // Recarrega todos os dados quando houver mudança
+            loadData()
+          }
+        )
+        .subscribe((status) => {
+          console.log('📡 Realtime status:', status)
+        })
+    }
+    
+    return () => {
+      clearInterval(interval)
+      if (channel) {
+        supabase?.removeChannel(channel)
+      }
+    }
   }, [])
 
   const [acumuladoMensal, setAcumuladoMensal] = useState<Record<string, number>>({})
