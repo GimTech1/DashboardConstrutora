@@ -1,4 +1,4 @@
-import { User, Target, CheckCircle2, Clock, XCircle } from 'lucide-react'
+import { User, CheckCircle2, Clock, XCircle } from 'lucide-react'
 import type { Agendamento, SDRName } from '../lib/supabase'
 import { SDR_COLORS } from '../lib/supabase'
 
@@ -12,14 +12,11 @@ interface SDRCardProps {
 export function SDRCard({ nome, agendamentos, metaDiaria, delay = 0 }: SDRCardProps) {
   const colors = SDR_COLORS[nome]
   
-  const realizados = agendamentos.filter(a => a.status === 'realizado').length
-  const confirmados = agendamentos.filter(a => a.status === 'confirmado').length
-  const pendentes = agendamentos.filter(a => a.status === 'pendente').length
-  const cancelados = agendamentos.filter(a => a.status === 'cancelado').length
+  const agendados = agendamentos.filter(a => a.status === 'agendado').length
   const total = agendamentos.length
   
-  const progressPercent = Math.min((realizados / metaDiaria) * 100, 100)
-  const metaAtingida = realizados >= metaDiaria
+  const progressPercent = Math.min((agendados / metaDiaria) * 100, 100)
+  const metaAtingida = agendados >= metaDiaria
 
   // Iniciais do nome
   const iniciais = nome.split(' ').map(n => n[0]).join('').slice(0, 2)
@@ -67,7 +64,7 @@ export function SDRCard({ nome, agendamentos, metaDiaria, delay = 0 }: SDRCardPr
                 : 'bg-amber-500/10 text-amber-400'
               }
             `}>
-              {metaAtingida ? 'Meta atingida!' : `${realizados}/${metaDiaria}`}
+              {metaAtingida ? 'Meta atingida!' : `${agendados}/${metaDiaria}`}
             </div>
           </div>
 
@@ -99,15 +96,15 @@ export function SDRCard({ nome, agendamentos, metaDiaria, delay = 0 }: SDRCardPr
               <div className="flex items-center justify-center mb-1">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               </div>
-              <p className="text-xl font-bold text-emerald-400 counter">{realizados}</p>
-              <p className="text-xs text-slate-500">Realizados</p>
+              <p className="text-xl font-bold text-emerald-400 counter">{agendados}</p>
+              <p className="text-xs text-slate-500">Agendados</p>
             </div>
             
             <div className="text-center p-3 rounded-xl bg-blue-500/5">
               <div className="flex items-center justify-center mb-1">
                 <Clock className="w-4 h-4 text-blue-400" />
               </div>
-              <p className="text-xl font-bold text-blue-400 counter">{confirmados + pendentes}</p>
+              <p className="text-xl font-bold text-blue-400 counter">0</p>
               <p className="text-xs text-slate-500">Pendentes</p>
             </div>
             
@@ -115,7 +112,7 @@ export function SDRCard({ nome, agendamentos, metaDiaria, delay = 0 }: SDRCardPr
               <div className="flex items-center justify-center mb-1">
                 <XCircle className="w-4 h-4 text-rose-400" />
               </div>
-              <p className="text-xl font-bold text-rose-400 counter">{cancelados}</p>
+              <p className="text-xl font-bold text-rose-400 counter">0</p>
               <p className="text-xs text-slate-500">Cancelados</p>
             </div>
           </div>
@@ -128,17 +125,13 @@ export function SDRCard({ nome, agendamentos, metaDiaria, delay = 0 }: SDRCardPr
               </p>
               <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
                 {agendamentos
-                  .filter(a => a.status === 'pendente' || a.status === 'confirmado')
                   .slice(0, 3)
                   .map(agendamento => (
                     <div 
                       key={agendamento.id}
                       className="flex items-center gap-3 p-2 rounded-lg bg-slate-800/30"
                     >
-                      <div className={`
-                        w-2 h-2 rounded-full
-                        ${agendamento.status === 'confirmado' ? 'bg-blue-400' : 'bg-amber-400'}
-                      `} />
+                      <div className="w-2 h-2 rounded-full bg-blue-400" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm text-white truncate">
                           {agendamento.cliente_nome}

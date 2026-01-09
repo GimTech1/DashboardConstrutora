@@ -7,6 +7,11 @@ interface AgendamentosTableProps {
 }
 
 const statusConfig = {
+  agendado: {
+    label: 'Agendado',
+    icon: Timer,
+    color: 'text-blue-400 bg-blue-400/10',
+  },
   realizado: {
     label: 'Realizado',
     icon: CheckCircle2,
@@ -27,7 +32,7 @@ const statusConfig = {
     icon: XCircle,
     color: 'text-rose-400 bg-rose-400/10',
   },
-}
+} as const
 
 export function AgendamentosTable({ agendamentos }: AgendamentosTableProps) {
   return (
@@ -75,7 +80,7 @@ export function AgendamentosTable({ agendamentos }: AgendamentosTableProps) {
             </thead>
             <tbody className="divide-y divide-slate-800/30">
               {agendamentos.map((agendamento, index) => {
-                const status = statusConfig[agendamento.status]
+                const status = statusConfig[agendamento.status] || statusConfig.agendado
                 const StatusIcon = status.icon
                 const sdrColor = SDR_COLORS[agendamento.sdr_nome as SDRName]
                 

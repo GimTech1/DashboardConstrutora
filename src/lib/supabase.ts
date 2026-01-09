@@ -163,7 +163,6 @@ export function getMockData() {
   // Simular acumulado mensal (em produção viria do banco)
   // Meta mensal: 360, ou seja ~12/dia para estar no ritmo
   const diaAtual = new Date().getDate()
-  const metaDiariaNecessaria = 360 / 30 // ~12 por dia
   
   const mockAcumuladoMensal: Record<string, number> = {
     'Renata': Math.floor(10 * (diaAtual - 1)) + 5,  // Média de 10/dia - abaixo do ritmo

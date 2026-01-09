@@ -10,7 +10,7 @@ interface ProgressChartProps {
 export function ProgressChart({ agendamentos, metas }: ProgressChartProps) {
   const data = SDRS.map(sdr => {
     const sdrAgendamentos = agendamentos.filter(a => a.sdr_nome === sdr)
-    const realizados = sdrAgendamentos.filter(a => a.status === 'realizado').length
+    const realizados = sdrAgendamentos.filter(a => a.status === 'agendado').length
     const meta = metas[sdr] || 6
     
     return {

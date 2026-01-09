@@ -15,7 +15,7 @@ import {
 import somLucas from './sounds/Lucas.mp4'
 import somDuda from './sounds/Duda.mp4'
 
-const USE_MOCK_DATA = true
+const USE_MOCK_DATA = false
 
 // Mapeamento de sons por SDR
 const SONS_SDR: Record<string, string> = {
