@@ -93,7 +93,7 @@ function App() {
     let channel: ReturnType<NonNullable<typeof supabase>['channel']> | null = null
     
     // Debounce para evitar múltiplas atualizações muito rápidas
-    let reloadTimeout: NodeJS.Timeout | null = null
+    let reloadTimeout: ReturnType<typeof setTimeout> | null = null
     
     if (!USE_MOCK_DATA && supabase) {
       channel = supabase
@@ -106,7 +106,8 @@ function App() {
             table: 'agendamentos'
           },
           (payload) => {
-            console.log('🔄 Atualização em tempo real detectada:', payload.eventType, payload.new?.id || payload.old?.id)
+            const id = (payload.new as { id?: string })?.id || (payload.old as { id?: string })?.id
+            console.log('🔄 Atualização em tempo real detectada:', payload.eventType, id)
             
             // Debounce: aguarda 500ms antes de recarregar
             // Isso evita múltiplas chamadas quando há várias mudanças rápidas
