@@ -70,6 +70,7 @@ export async function getAgendamentosHoje() {
   if (!supabase) throw new Error('Supabase não configurado')
   
   const hoje = new Date().toISOString().split('T')[0]
+  console.log('📅 Buscando agendamentos para:', hoje)
   
   const { data, error } = await supabase
     .from('agendamentos')
@@ -77,7 +78,25 @@ export async function getAgendamentosHoje() {
     .eq('data_agendamento', hoje)
     .order('hora_agendamento', { ascending: true })
 
-  if (error) throw error
+  if (error) {
+    console.error('❌ Erro ao buscar agendamentos:', error)
+    throw error
+  }
+  
+  console.log(`✅ Encontrados ${data?.length || 0} agendamentos para hoje`)
+  if (data && data.length > 0) {
+    const porSDR = data.reduce((acc: Record<string, number>, ag: Agendamento) => {
+      acc[ag.sdr_nome] = (acc[ag.sdr_nome] || 0) + 1
+      return acc
+    }, {})
+    console.log('📊 Agendamentos por SDR:', porSDR)
+    console.log('📋 Primeiros 3 agendamentos:', data.slice(0, 3).map(a => ({
+      sdr: a.sdr_nome,
+      data: a.data_agendamento,
+      hora: a.hora_agendamento
+    })))
+  }
+  
   return data as Agendamento[]
 }
 

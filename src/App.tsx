@@ -92,6 +92,9 @@ function App() {
     // Realtime: escuta mudanças na tabela de agendamentos
     let channel: ReturnType<NonNullable<typeof supabase>['channel']> | null = null
     
+    // Debounce para evitar múltiplas atualizações muito rápidas
+    let reloadTimeout: NodeJS.Timeout | null = null
+    
     if (!USE_MOCK_DATA && supabase) {
       channel = supabase
         .channel('agendamentos-realtime')
@@ -103,9 +106,15 @@ function App() {
             table: 'agendamentos'
           },
           (payload) => {
-            console.log('🔄 Atualização em tempo real:', payload)
-            // Recarrega todos os dados quando houver mudança
-            loadData()
+            console.log('🔄 Atualização em tempo real detectada:', payload.eventType, payload.new?.id || payload.old?.id)
+            
+            // Debounce: aguarda 500ms antes de recarregar
+            // Isso evita múltiplas chamadas quando há várias mudanças rápidas
+            if (reloadTimeout) clearTimeout(reloadTimeout)
+            reloadTimeout = setTimeout(() => {
+              console.log('🔄 Recarregando dados após mudança...')
+              loadData()
+            }, 500)
           }
         )
         .subscribe((status) => {
@@ -115,6 +124,7 @@ function App() {
     
     return () => {
       clearInterval(interval)
+      if (reloadTimeout) clearTimeout(reloadTimeout)
       if (channel) {
         supabase?.removeChannel(channel)
       }
@@ -126,17 +136,37 @@ function App() {
   async function loadData() {
     try {
       if (USE_MOCK_DATA) {
+        console.log('⚠️ Usando dados MOCKADOS')
         const { mockAgendamentos, mockMetas, mockAcumuladoMensal } = getMockData()
         setAgendamentos(mockAgendamentos)
         setMetas(mockMetas)
         setAcumuladoMensal(mockAcumuladoMensal)
       } else {
+        console.log('🔄 Carregando dados do Supabase...')
         const [agendamentosData, metasData, agendamentosMes] = await Promise.all([
           getAgendamentosHoje(),
           getMetasSDR(),
           getTotalAgendamentosMes()
         ])
-        setAgendamentos(agendamentosData)
+        
+        console.log('📦 Dados carregados:')
+        console.log('  - Agendamentos hoje:', agendamentosData.length)
+        console.log('  - Metas:', metasData.length)
+        console.log('  - Agendamentos do mês:', agendamentosMes.length)
+        
+        // Verificar se há duplicatas
+        const ids = new Set(agendamentosData.map(a => a.id))
+        if (ids.size !== agendamentosData.length) {
+          console.warn('⚠️ ATENÇÃO: Agendamentos duplicados detectados!')
+          const unicos = agendamentosData.filter((a, index, self) => 
+            index === self.findIndex(ag => ag.id === a.id)
+          )
+          console.log(`  Removendo ${agendamentosData.length - unicos.length} duplicatas`)
+          setAgendamentos(unicos)
+        } else {
+          setAgendamentos(agendamentosData)
+        }
+        
         setMetas(metasData)
         
         // Calcular acumulado mensal por SDR
@@ -144,14 +174,16 @@ function App() {
         SDRS.forEach(sdr => {
           acumulado[sdr] = agendamentosMes.filter(a => a.sdr_nome === sdr).length
         })
+        console.log('📊 Acumulado mensal:', acumulado)
         setAcumuladoMensal(acumulado)
       }
     } catch (error) {
-      console.error('Erro ao carregar dados:', error)
-      const { mockAgendamentos, mockMetas, mockAcumuladoMensal } = getMockData()
-      setAgendamentos(mockAgendamentos)
-      setMetas(mockMetas)
-      setAcumuladoMensal(mockAcumuladoMensal)
+      console.error('❌ Erro ao carregar dados do Supabase:', error)
+      // NÃO usar dados mockados em produção - mostrar erro
+      alert('Erro ao conectar com o banco de dados. Verifique as credenciais do Supabase.')
+      setAgendamentos([])
+      setMetas([])
+      setAcumuladoMensal({})
     } finally {
       setLoading(false)
     }
@@ -190,16 +222,11 @@ function App() {
       } else {
         // Modo produção: salva no Supabase
         const novoAgendamento = await criarAgendamento(sdrNome)
-        console.log('Agendamento criado:', novoAgendamento)
+        console.log('✅ Agendamento criado no Supabase:', novoAgendamento)
         
-        // Adiciona ao estado local
-        setAgendamentos(prev => [...prev, novoAgendamento])
-        
-        // Atualiza o acumulado mensal
-        setAcumuladoMensal(prev => ({
-          ...prev,
-          [sdrNome]: (prev[sdrNome] || 0) + 1
-        }))
+        // NÃO adicionar ao estado local - deixar o Realtime atualizar
+        // Isso evita duplicatas e garante dados consistentes
+        // O Realtime vai disparar e recarregar todos os dados automaticamente
       }
     } catch (error) {
       console.error('Erro ao adicionar agendamento:', error)
